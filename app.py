@@ -8,19 +8,23 @@ from nltk.corpus import sentiwordnet as swn
 from string import punctuation
 
 # -------------------------
-# NLTK Downloads (first run only, cached after)
+# Ensure NLTK Data is Downloaded (cached after first run)
 # -------------------------
-nltk.download('punkt', quiet=True)
-nltk.download('wordnet', quiet=True)
-nltk.download('sentiwordnet', quiet=True)
-nltk.download('stopwords', quiet=True)
-nltk.download('averaged_perceptron_tagger', quiet=True)
+@st.cache_resource
+def download_nltk_data():
+    nltk.download('punkt')
+    nltk.download('wordnet')
+    nltk.download('sentiwordnet')
+    nltk.download('stopwords')
+    nltk.download('averaged_perceptron_tagger')
+    return True
+
+download_nltk_data()
 
 # -------------------------
 # Helper Functions
 # -------------------------
 def penn_to_wn(tag):
-    """Convert PennTreebank tags to WordNet tags"""
     if tag.startswith('J'):
         return wn.ADJ
     elif tag.startswith('N'):
@@ -32,14 +36,13 @@ def penn_to_wn(tag):
     return None
 
 def get_sentiment_score(text):
-    """Returns sentiment score using SentiWordNet"""
     total_score = 0
     raw_sentences = sent_tokenize(text)
 
     for sentence in raw_sentences:
         sent_score = 0     
         sentence = str(sentence)
-        sentence = sentence.replace("<br />"," ").translate(str.maketrans('','',punctuation)).lower()
+        sentence = sentence.replace("<br />"," ").translate(str.maketrans('', '', punctuation)).lower()
         tokens = TreebankWordTokenizer().tokenize(sentence)
         tags = pos_tag(tokens)
 
@@ -58,7 +61,7 @@ def get_sentiment_score(text):
                 swn_synset = swn.senti_synset(synset.name())
                 sent_score += swn_synset.pos_score() - swn_synset.neg_score()
             except:
-                continue  # in case the synset is missing in sentiwordnet
+                continue
 
         if len(tokens) > 0:
             total_score += (sent_score / len(tokens))
