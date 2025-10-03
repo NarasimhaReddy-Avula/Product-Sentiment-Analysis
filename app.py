@@ -13,11 +13,12 @@ from string import punctuation
 @st.cache_resource
 def download_nltk_data():
     nltk.download('punkt')
-    nltk.download('punkt_tab')  # <--- NEW
+    nltk.download('punkt_tab')
     nltk.download('wordnet')
     nltk.download('sentiwordnet')
     nltk.download('stopwords')
     nltk.download('averaged_perceptron_tagger')
+    nltk.download('averaged_perceptron_tagger_eng')  # <-- NEW
     return True
 
 download_nltk_data()
